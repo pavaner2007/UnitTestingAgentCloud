@@ -1,47 +1,53 @@
-# AutoQA Agent
+# AutoQA Agent — AI Repository Intelligence & Code Analysis System
 
-> **AI-powered repository analysis, code execution tracing, feature map extraction, cross-repository comparison, and interactive Q&A — all in one system.**
+> **An enterprise-grade, multi-agent AI system for automated GitHub repository analysis, execution flow tracing, functional feature mapping, architectural audit, cross-repository comparison, and interactive RAG Q&A.**
 
-AutoQA Agent accepts any public GitHub repository URL, clones it locally, runs an 18-agent analysis pipeline, and produces a rich structured report covering tech stack, API inventory, dependency graphs, bug detection, execution flow traces, business feature maps, architecture drift, developer onboarding guides, tech debt rankings, and AI-generated architectural insights. A built-in RAG chat lets you ask questions about the code in plain English.
+AutoQA Agent accepts any public GitHub repository URL, clones it locally, executes a 19-agent analysis pipeline, and produces a comprehensive structured report. It features local Ollama models for code summarization/embeddings, cloud-based Groq reasoning for high-level insights, deterministic AST analysis for zero-hallucination metrics, and a React frontend.
 
 ---
 
 ## Table of Contents
 
 - [Architecture Overview](#architecture-overview)
-- [Agent Pipeline — How It Works](#agent-pipeline--how-it-works)
-  - [Stage 1 — RepositoryAnalysisAgent](#stage-1--repositoryanalysisagent)
-  - [Stage 2 — TechStackDetectionAgent](#stage-2--techstackdetectionagent)
-  - [Stage 3 — ApiDiscoveryAgent](#stage-3--apidiscoveryagent)
-  - [Stage 4 — FilePrioritizationAgent](#stage-4--fileprioritizationagent)
-  - [Stage 5 — CodeChunkingAgent](#stage-5--codechunkingagent)
-  - [Stage 6 — PatternDetector](#stage-6--patterndetector)
-  - [Stage 7 — BugDetectionAgent](#stage-7--bugdetectionagent)
-  - [Stage 8 — DependencyGraphAgent](#stage-8--dependencygraphagent)
-  - [Stage 9 — CodeAnalysisAgent (Orchestrator)](#stage-9--codeanalysisagent-orchestrator)
-  - [Stage 10 — ReportGenerationAgent](#stage-10--reportgenerationagent)
-  - [Stage 11 — ChangeImpactAnalysisAgent (V2)](#stage-11--changeimpactanalysisagent-v2)
-  - [Stage 12 — ArchitectureDriftAgent (V2)](#stage-12--architecturedriftagent-v2)
-  - [Stage 13 — AIProjectOnboardingAgent (V2)](#stage-13--aiprojectonboardingagent-v2)
-  - [Stage 14 — RepositoryHealthScoreAgent (V2)](#stage-14--repositoryhealthscoreagent-v2)
-  - [Stage 15 — TechnicalDebtPrioritizationAgent (V2)](#stage-15--technicaldebtprioritizationagent-v2)
-  - [Stage 16 — ExecutionFlowAgent (V3)](#stage-16--executionflowagent-v3)
-  - [Stage 17 — FeatureExtractionAgent (V3)](#stage-17--featureextractionagent-v3)
-  - [Stage 18 — CrossRepoDuplicateAgent (V3 Enhanced)](#stage-18--crossrepoduplicateagent-v3-enhanced)
-  - [Stage 19 — QAChatAgent](#stage-19--qachatagent)
-- [LLM Architecture](#llm-architecture)
-- [Groq Safety Boundary](#groq-safety-boundary)
+- [Complete 19-Agent System Reference](#complete-19-agent-system-reference)
+  - [Phase 1: Repository Discovery & Ingestion](#phase-1-repository-discovery--ingestion)
+    - [1. RepositoryAnalysisAgent](#1-repositoryanalysisagent)
+    - [2. TechStackDetectionAgent](#2-techstackdetectionagent)
+    - [3. ApiDiscoveryAgent](#3-apidiscoveryagent)
+  - [Phase 2: Codebase Parsing & Structural Analysis](#phase-2-codebase-parsing--structural-analysis)
+    - [4. FilePrioritizationAgent](#4-fileprioritizationagent)
+    - [5. CodeChunkingAgent](#5-codechunkingagent)
+    - [6. PatternDetector](#6-patterndetector)
+    - [7. BugDetectionAgent](#7-bugdetectionagent)
+    - [8. DependencyGraphAgent](#8-dependencygraphagent)
+    - [9. CodeAnalysisAgent (Orchestrator)](#9-codeanalysisagent-orchestrator)
+  - [Phase 3: High-Level Reasoning & Report Generation](#phase-3-high-level-reasoning--report-generation)
+    - [10. ReportGenerationAgent](#10-reportgenerationagent)
+  - [Phase 4: Enterprise Intelligence & Quality Audits (V2)](#phase-4-enterprise-intelligence--quality-audits-v2)
+    - [11. ChangeImpactAnalysisAgent](#11-changeimpactanalysisagent)
+    - [12. ArchitectureDriftAgent](#12-architecturedriftagent)
+    - [13. AIProjectOnboardingAgent](#13-aiprojectonboardingagent)
+    - [14. RepositoryHealthScoreAgent](#14-repositoryhealthscoreagent)
+    - [15. TechnicalDebtPrioritizationAgent](#15-technicaldebtprioritizationagent)
+  - [Phase 5: AI Call Tracing & Feature Extraction (V3)](#phase-5-ai-call-tracing--feature-extraction-v3)
+    - [16. ExecutionFlowAgent](#16-executionflowagent)
+    - [17. FeatureExtractionAgent](#17-featureextractionagent)
+    - [18. CrossRepoDuplicateAgent](#18-crossrepoduplicateagent)
+  - [Phase 6: Interactive Q&A Engine](#phase-6-interactive-qa-engine)
+    - [19. QAChatAgent](#19-qachatagent)
+- [LLM Architecture & Model Delegation](#llm-architecture--model-delegation)
+- [Groq Safety Boundary (Zero Code Leakage)](#groq-safety-boundary-zero-code-leakage)
 - [Tech Stack](#tech-stack)
 - [Folder Structure](#folder-structure)
-- [Prerequisites](#prerequisites)
-- [Setup Guide](#setup-guide)
-  - [Backend](#backend)
-  - [Frontend](#frontend)
-  - [PostgreSQL](#postgresql)
+- [Prerequisites & Ollama Setup](#prerequisites--ollama-setup)
+- [Setup & Quickstart Guide](#setup--quickstart-guide)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+  - [PostgreSQL Database](#postgresql-database)
 - [Environment Variables](#environment-variables)
-- [API Reference](#api-reference)
-- [Frontend UI Panels](#frontend-ui-panels)
-- [Running Tests](#running-tests)
+- [API Endpoints Reference](#api-endpoints-reference)
+- [Frontend UI Panels & Navigation](#frontend-ui-panels--navigation)
+- [Running Unit & Integration Tests](#running-unit--integration-tests)
 
 ---
 
@@ -50,7 +56,7 @@ AutoQA Agent accepts any public GitHub repository URL, clones it locally, runs a
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           USER  (React Frontend)                            │
-│           Submits GitHub URL  ·  Views report  ·  Compares Repos  ·  Chats  │
+│           Submits GitHub URL  ·  Views Report  ·  Compares Repos  ·  Chats  │
 └─────────────────────────────┬───────────────────────────────────────────────┘
                               │ POST /analyze-repository
                               ▼
@@ -87,191 +93,185 @@ AutoQA Agent accepts any public GitHub repository URL, clones it locally, runs a
                       ┌───────────┘
                       ▼
                   [Stage 19]
-                  QAChatAgent (RAG: Pinned → Semantic → Targeted)
+                  QAChatAgent (3-Tier RAG Retrieval)
                       │
                       ▼
-                  Groq API (answer generation)
+                  Groq API (Grounded Answer Generation)
 ```
 
 ---
 
-## Agent Pipeline — How It Works
+## Complete 19-Agent System Reference
 
-The full pipeline executes in sequence across 18 specialized agents.
-
----
-
-### Stage 1 — `RepositoryAnalysisAgent`
-**File:** `backend/app/agents/repository_analysis_agent.py`
-- Validates the submitted URL matches `https://github.com/owner/repo`.
-- Shallow-clones the repository (`depth=1`) via GitPython into `WORKSPACE_DIR/`.
-- Handles Windows file-lock permission errors during cleanups via `_remove_readonly`.
-- Extracts repository metadata: branch, latest commit SHA, total file/directory counts, top-level structure, and config files.
+The system is composed of **19 decoupled agent modules**, each operating with strict responsibilities:
 
 ---
 
-### Stage 2 — `TechStackDetectionAgent`
-**File:** `backend/app/agents/tech_stack_agent.py`
-- Deterministic analysis (zero LLM calls).
-- Inspects file extensions, parses `package.json`, `requirements.txt`, `pyproject.toml`, `pom.xml`, `build.gradle`.
-- Detects frontend/backend frameworks, databases (PostgreSQL, MongoDB, MySQL), languages, and records source evidence.
+### Phase 1: Repository Discovery & Ingestion
+
+#### 1. `RepositoryAnalysisAgent`
+- **Class:** `RepositoryAnalysisAgent`
+- **File:** `backend/app/agents/repository_analysis_agent.py`
+- **Mode:** Deterministic
+- **Role:** Validates GitHub URLs, shallow-clones (`depth=1`) repositories into `WORKSPACE_DIR/`, handles Windows file-lock permission errors (`_remove_readonly`), and extracts repository metadata (branch, commit SHA, total files/directories, config file inventory).
+
+#### 2. `TechStackDetectionAgent`
+- **Class:** `TechStackDetectionAgent`
+- **File:** `backend/app/agents/tech_stack_agent.py`
+- **Mode:** Deterministic (Zero LLM calls)
+- **Role:** Inspects file extensions and parses project configuration files (`package.json`, `requirements.txt`, `pyproject.toml`, `pom.xml`, `build.gradle`) to identify languages, frontend/backend frameworks, databases (PostgreSQL, MongoDB, MySQL), and package managers with file-level evidence.
+
+#### 3. `ApiDiscoveryAgent`
+- **Class:** `ApiDiscoveryAgent`
+- **File:** `backend/app/agents/api_discovery_agent.py`
+- **Mode:** Deterministic (Regex AST match)
+- **Role:** Scans source code for REST API endpoints across FastAPI, Flask, Django, Express.js, and Spring Boot. Extracts HTTP methods, URL paths, source files, line numbers, and framework tags.
 
 ---
 
-### Stage 3 — `ApiDiscoveryAgent`
-**File:** `backend/app/agents/api_discovery_agent.py`
-- Deterministic regex scanning for REST endpoints across frameworks:
-  - **FastAPI**: `@router.get(...)`, `@app.post(...)`
-  - **Flask**: `@app.route(...)`, `@blueprint.get(...)`
-  - **Django**: `path(...)`, `re_path(...)`
-  - **Express.js**: `app.get(...)`, `router.post(...)`
-  - **Spring Boot**: `@GetMapping`, `@PostMapping`
-- Extracts HTTP method, path, file, line number, and framework.
+### Phase 2: Codebase Parsing & Structural Analysis
+
+#### 4. `FilePrioritizationAgent`
+- **Class:** `FilePrioritizationAgent`
+- **File:** `backend/app/agents/file_prioritization_agent.py`
+- **Mode:** Scored Ranking Algorithm
+- **Role:** Ranks repository files by architectural importance (+50 entry points, +40 API route files, +30 services/models/controllers). Enforces file count caps (`MAX_FILES_TO_ANALYZE`) and character token budgets (`MAX_CODE_TOKEN_BUDGET`).
+
+#### 5. `CodeChunkingAgent`
+- **Class:** `CodeChunkingAgent`
+- **File:** `backend/app/agents/code_chunking_agent.py`
+- **Mode:** Tree-Sitter AST Parsing
+- **Role:** Splits prioritized source files into semantic AST chunks (functions, classes, methods) using `tree-sitter` grammars across Python, JavaScript, TypeScript, Go, Java, C/C++, Ruby, and Rust. Includes fallback character-window chunking.
+
+#### 6. `PatternDetector`
+- **Class:** `PatternDetector`
+- **File:** `backend/app/agents/pattern_detector.py`
+- **Mode:** Deterministic Regex Scanner
+- **Role:** Identifies architecturally significant code patterns: JWT authentication, raw SQL queries, external HTTP client calls (`requests`, `httpx`, `axios`), environment secret access, hardcoded API keys, subprocess executions, and developer debt comments (`TODO`, `FIXME`).
+
+#### 7. `BugDetectionAgent`
+- **Class:** `BugDetectionAgent`
+- **File:** `backend/app/agents/bug_detection_agent.py`
+- **Mode:** Static Analysis + Ruff Linter
+- **Role:** Detects code smells (bare excepts, pass-only function bodies, deep nesting >4 levels, debug print statements, duplicate function logic). Integrates system `Ruff` linter for Python when installed.
+
+#### 8. `DependencyGraphAgent`
+- **Class:** `DependencyGraphAgent`
+- **File:** `backend/app/agents/dependency_graph_agent.py`
+- **Mode:** AST & Import Parser
+- **Role:** Parses import statements across the entire repository to construct a directed dependency graph (`nodes`, `edges`, `in-degree centrality`, `circular dependency cycles`).
+
+#### 9. `CodeAnalysisAgent` (Orchestrator)
+- **Class:** `CodeAnalysisAgent`
+- **File:** `backend/app/agents/code_analysis_agent.py`
+- **Mode:** Hybrid Async Orchestrator
+- **Role:** Orchestrates file prioritization, tree-sitter chunking, pattern/bug/dependency detection, and manages batching of local Ollama calls: Phase A (`qwen2.5-coder:7b` chunk summaries) and Phase B (`llama3.1:8b` hierarchical file/module reduces). Generates vector embeddings.
 
 ---
 
-### Stage 4 — `FilePrioritizationAgent`
-**File:** `backend/app/agents/file_prioritization_agent.py`
-- Ranks repository files by architectural importance (+50 entry points, +40 API route files, +30 services/models/controllers).
-- Enforces token budget caps (`MAX_FILES_TO_ANALYZE` and `MAX_CODE_TOKEN_BUDGET`).
+### Phase 3: High-Level Reasoning & Report Generation
+
+#### 10. `ReportGenerationAgent`
+- **Class:** `ReportGenerationAgent`
+- **File:** `backend/app/agents/report_generation_agent.py`
+- **Mode:** Schema Aggregator & Groq Interface
+- **Role:** Constructs a strict, privacy-safe facts payload (<32 KB, zero raw code), submits it to Groq (`llama-3.1-8b-instant`), receives architectural reasoning (overview, complexity, workflows, key tech, confidence score), and persists the report to PostgreSQL and disk.
 
 ---
 
-### Stage 5 — `CodeChunkingAgent`
-**File:** `backend/app/agents/code_chunking_agent.py`
-- Splits prioritized source files into semantic AST chunks (functions/classes) using **tree-sitter**.
-- Fallback to line/character chunks for languages without tree-sitter grammars.
+### Phase 4: Enterprise Intelligence & Quality Audits (V2)
+
+#### 11. `ChangeImpactAnalysisAgent`
+- **Class:** `ChangeImpactAnalysisAgent`
+- **File:** `backend/app/agents/change_impact_agent.py`
+- **Mode:** Graph Traversal Blast-Radius Calculator
+- **Role:** Simulates modifying a specific file, computing direct/transitive dependent files, impacted REST APIs, and assigning a risk level (`Low`, `Medium`, `High`, `Critical`).
+
+#### 12. `ArchitectureDriftAgent`
+- **Class:** `ArchitectureDriftAgent`
+- **File:** `backend/app/agents/architecture_drift_agent.py`
+- **Mode:** Clean Architecture Auditor
+- **Role:** Audits codebase against clean architecture rules, flagging layer violations (e.g. database calls in controllers), circular import cycles, orphaned files, and monolithic file smells.
+
+#### 13. `AIProjectOnboardingAgent`
+- **Class:** `AIProjectOnboardingAgent`
+- **File:** `backend/app/agents/project_onboarding_agent.py`
+- **Mode:** Onboarding Generator
+- **Role:** Generates an ordered developer reading path (key entry files to inspect first) and interactive comprehension quizzes based on the repository's real architecture.
+
+#### 14. `RepositoryHealthScoreAgent`
+- **Class:** `RepositoryHealthScoreAgent`
+- **File:** `backend/app/agents/repository_health_agent.py`
+- **Mode:** Weighted Multi-Metric Scorer
+- **Role:** Calculates an overall 0–100 repository health score with category breakdowns: Maintainability, Test Coverage, Architectural Hygiene, and Documentation.
+
+#### 15. `TechnicalDebtPrioritizationAgent`
+- **Class:** `TechnicalDebtPrioritizationAgent`
+- **File:** `backend/app/agents/technical_debt_agent.py`
+- **Mode:** Debt Backlog Ranker
+- **Role:** Builds a prioritized technical debt backlog ranked by business impact, estimated fix effort in hours, and risk level.
 
 ---
 
-### Stage 6 — `PatternDetector`
-**File:** `backend/app/agents/pattern_detector.py`
-- Scans chunks for notable patterns: JWT auth, raw SQL queries, external HTTP calls, env secret access, hardcoded secrets, sub-processes, developer debt comments (`TODO`, `FIXME`).
+### Phase 5: AI Call Tracing & Feature Extraction (V3)
+
+#### 16. `ExecutionFlowAgent`
+- **Class:** `ExecutionFlowAgent`
+- **File:** `backend/app/agents/execution_flow_agent.py`
+- **Mode:** Deterministic AST Call Graph Visualizer
+- **Role:** Visualizes request/function execution paths starting from API endpoints down to database queries (`session.query`, `execute`, `filter`), external HTTP calls (`requests`, `httpx`, `axios`), and handled exceptions without executing any code.
+
+#### 17. `FeatureExtractionAgent`
+- **Class:** `FeatureExtractionAgent`
+- **File:** `backend/app/agents/feature_extraction_agent.py`
+- **Mode:** Zero-Rescanning Feature Discoverer
+- **Role:** Discovers business feature domains (Authentication, Payment, User Management, Analytics, AI/ML, etc.) by grouping existing API inventory, controllers, services, models, DB tables, and environment variables from `.env.example`.
+
+#### 18. `CrossRepoDuplicateAgent`
+- **Class:** `CrossRepoDuplicateAgent`
+- **File:** `backend/app/agents/cross_repo_duplicate_agent.py`
+- **Mode:** Multi-Dimensional Jaccard Scorer
+- **Role:** Compares two analyzed repositories across 5 dimensions (API, Code, Architecture, Module, Feature). Detects near-identical clones at a 98% threshold, issues informational banners (non-legal), and classifies relationships (*Near-Identical Copy*, *Likely Cloned Repository*, *Shared Template*, *Fork*, *Shared Architecture*, or *Independent Repository*).
 
 ---
 
-### Stage 7 — `BugDetectionAgent`
-**File:** `backend/app/agents/bug_detection_agent.py`
-- Static code analysis smell detection: bare excepts, pass-only functions, deep nesting (>4 levels), debug print statements, duplicate function bodies.
-- Integrates optional `Ruff` linter for Python repositories when installed on system `PATH`.
+### Phase 6: Interactive Q&A Engine
+
+#### 19. `QAChatAgent`
+- **Class:** `QAChatAgent`
+- **File:** `backend/app/agents/qa_chat_agent.py`
+- **Mode:** 3-Tier RAG Retrieval Engine
+- **Role:** Powers plain-English Q&A over the codebase using a three-tier retrieval hierarchy:
+  1. **Pinned Retrieval:** Exact `file:line` references (score = 1.0)
+  2. **Semantic Retrieval:** Cosine vector search over chunk embeddings
+  3. **Targeted Symbol Retrieval:** Exact AST symbol substring fallback
+  Generates grounded answers via Groq with exact file and line-range citations.
 
 ---
 
-### Stage 8 — `DependencyGraphAgent`
-**File:** `backend/app/agents/dependency_graph_agent.py`
-- Parses import statements across the entire repository to build a directed graph (nodes, edges, in-degree centrality, circular dependency cycles).
+## LLM Architecture & Model Delegation
 
----
+AutoQA Agent employs a **hybrid local + cloud LLM model delegation**:
 
-### Stage 9 — `CodeAnalysisAgent` (Orchestrator)
-**File:** `backend/app/agents/code_analysis_agent.py`
-- Orchestrates Phases 0–2 (deterministic) and Phases A–B (Ollama LLM summarization).
-- Concurrent chunk summarization via local code model (`qwen2.5-coder:7b`).
-- Hierarchical reduce to produce per-file and per-module summaries via local text model (`llama3.1:8b`).
-- Stores vector embeddings for semantic code search.
-
----
-
-### Stage 10 — `ReportGenerationAgent`
-**File:** `backend/app/agents/report_generation_agent.py`
-- Assembles non-sensitive structured facts payload (< 32 KB) and queries Groq API for architectural reasoning.
-- Produces overview, complexity level, workflows, key tech, confidence score, and persists report to PostgreSQL & JSON file.
-
----
-
-### Stage 11 — `ChangeImpactAnalysisAgent` (V2)
-**File:** `backend/app/agents/change_impact_agent.py`
-- Performs blast-radius analysis when a file is modified.
-- Calculates direct/transitive dependencies, affected API routes, and assigns risk levels (Low/Medium/High/Critical).
-
----
-
-### Stage 12 — `ArchitectureDriftAgent` (V2)
-**File:** `backend/app/agents/architecture_drift_agent.py`
-- Audits repository structure against clean architecture guidelines.
-- Detects circular dependencies, layer violations (e.g. DB calls in controllers), orphaned files, and monolithic file smells.
-
----
-
-### Stage 13 — `AIProjectOnboardingAgent` (V2)
-**File:** `backend/app/agents/project_onboarding_agent.py`
-- Generates a step-by-step recommended reading path for new developers.
-- Produces interactive comprehension quizzes based on repository architecture.
-
----
-
-### Stage 14 — `RepositoryHealthScoreAgent` (V2)
-**File:** `backend/app/agents/repository_health_agent.py`
-- Computes an overall 0–100 health score with category breakdowns (Maintainability, Test Coverage, Architectural Hygiene, Documentation).
-
----
-
-### Stage 15 — `TechnicalDebtPrioritizationAgent` (V2)
-**File:** `backend/app/agents/technical_debt_agent.py`
-- Generates an actionable, prioritized tech debt backlog ranked by business impact, estimated fix effort (hours), and risk.
-
----
-
-### Stage 16 — `ExecutionFlowAgent` (V3 New)
-**File:** `backend/app/agents/execution_flow_agent.py`
-- **Purely deterministic static AST tracer** — visualizes execution call paths starting from API endpoints.
-- Traces direct and transitive function calls, database operations (`session.query`, `execute`, `filter`), external HTTP calls (`requests`, `httpx`, `axios`), and handled exceptions.
-- Computes confidence scores per node (0.0–1.0) and assigns depth meters.
-
----
-
-### Stage 17 — `FeatureExtractionAgent` (V3 New)
-**File:** `backend/app/agents/feature_extraction_agent.py`
-- **Zero re-scanning agent** — discovers business feature domains from existing pipeline artifacts (API inventory, module summaries, code insights, `.env.example`).
-- Classifies routes, controllers, services, models, DB tables, env vars, and config files into business feature cards (Authentication, Payment, User Management, Analytics, AI/ML, etc.).
-- Computes weighted feature confidence scores and includes fallback micro-clustering for custom routes.
-
----
-
-### Stage 18 — `CrossRepoDuplicateAgent` (V3 Enhanced)
-**File:** `backend/app/agents/cross_repo_duplicate_agent.py`
-- Performs multi-dimensional cross-repository comparison:
-  - **API similarity** (35% weight)
-  - **Code similarity** (30% weight)
-  - **Architecture similarity** (15% weight)
-  - **Module structure similarity** (10% weight)
-  - **Feature similarity** (10% weight)
-- **Clone Detection**: Identifies near-identical codebases at a 98% threshold and outputs informational warning banners (without legal/ownership claims).
-- **Relationship Classification**: Classifies repository pairs as *Near-Identical Copy*, *Likely Cloned Repository*, *Shared Template*, *Fork*, *Shared Architecture*, or *Independent Repository*.
-
----
-
-### Stage 19 — `QAChatAgent`
-**File:** `backend/app/agents/qa_chat_agent.py`
-- Three-tier RAG retrieval pipeline:
-  1. **Pinned retrieval**: Direct `file:line` references (score = 1.0)
-  2. **Semantic retrieval**: Cosine vector search over `chunk_embeddings`
-  3. **Targeted retrieval**: Symbol substring matching if mentioned symbols are missing from context
-- Generates grounded answers via Groq with exact file & line-range citations.
-
----
-
-## LLM Architecture
-
-The system uses a **three-tier LLM strategy**:
-
-| Tier | Model | Provider | Purpose |
+| Tier | Model | Location | Responsibility |
 |---|---|---|---|
-| **Code model** | `qwen2.5-coder:7b` | Ollama (local) | Chunk-level code semantics & function summaries |
-| **Text model** | `llama3.1:8b` | Ollama (local) | README summarisation, module reduce, feature enrichment |
-| **Cloud reasoning** | `llama-3.1-8b-instant` | Groq API | Project overview, high-level feature reasoning, RAG chat |
-| **Embedding** | `nomic-embed-text` | Ollama (local) | Vector search embeddings for code chunks |
+| **Code Summary Model** | `qwen2.5-coder:7b` | Ollama (Local) | AST chunk-level code semantics and function summarisation |
+| **Text & Reduce Model** | `llama3.1:8b` | Ollama (Local) | README summarisation, file/module reduce, feature enrichment |
+| **Cloud Reasoning Engine** | `llama-3.1-8b-instant` | Groq API (Cloud) | High-level architecture reasoning, feature overview, RAG chat |
+| **Embedding Engine** | `nomic-embed-text` | Ollama (Local) | Vector embeddings for code chunk semantic search |
+
+> **Graceful Degradation:** If Ollama is offline, local code insights degrade gracefully while Groq generates high-level analysis from deterministic facts. If Groq is offline, deterministic fallback analysis reports are returned.
 
 ---
 
-## Groq Safety Boundary
+## Groq Safety Boundary (Zero Code Leakage)
 
 **Groq never receives raw source code during repository analysis.**
 
-- Sent to Groq: Tech stack names, API endpoint paths, 1-sentence module summaries, pattern descriptions, issue count totals.
-- Never sent to Groq: Raw chunk contents, full file source code, full bug issue lists.
+- **Sent to Groq:** Tech stack lists, API endpoint paths/methods, 1-sentence module summaries, pattern descriptions, issue count totals.
+- **Never sent to Groq:** Raw code chunks, source file contents, full linter issue lists.
 
-*Exception*: Interactive Q&A chat sends user-requested, relevant code snippets to Groq to generate answers.
+*Note:* Interactive Q&A chat sends user-requested, relevant code snippets to Groq to answer specific questions.
 
 ---
 
@@ -279,14 +279,16 @@ The system uses a **three-tier LLM strategy**:
 
 | Layer | Technology |
 |---|---|
-| Backend | FastAPI 0.115 · Python 3.11+ · Pydantic V2 |
-| Frontend | React 18 · Vite · Vanilla CSS |
-| Database | PostgreSQL · SQLAlchemy 2.0 |
-| Local LLM | Ollama (`qwen2.5-coder:7b`, `llama3.1:8b`, `nomic-embed-text`) |
-| Cloud LLM | Groq API (`llama-3.1-8b-instant`) |
-| AST & Static Analysis | tree-sitter · Python `ast` · Ruff |
-| Visualisation | D3-force (Dependency Graph) · Custom SVG (Execution Flow) |
-| Testing | Pytest (68 unit & integration tests) |
+| **Backend** | FastAPI 0.115 · Python 3.11+ · Pydantic V2 · Uvicorn |
+| **Frontend** | React 18 · Vite · Vanilla CSS · Lucide Icons |
+| **Database** | PostgreSQL · SQLAlchemy 2.0 ORM |
+| **Local LLM** | Ollama (`qwen2.5-coder:7b`, `llama3.1:8b`, `nomic-embed-text`) |
+| **Cloud LLM** | Groq API (`llama-3.1-8b-instant`) |
+| **AST Parsing** | `tree-sitter` · Python `ast` module |
+| **Static Analysis** | Ruff (Python linter) |
+| **Visualisation** | D3-force (Dependency Graph) · Custom SVG/CSS (Execution Flow) |
+| **PDF Export** | ReportLab |
+| **Testing** | Pytest (68 unit & integration tests) |
 
 ---
 
@@ -296,82 +298,102 @@ The system uses a **three-tier LLM strategy**:
 AutoQA_Agent/
 ├── backend/
 │   ├── app/
-│   │   ├── agents/
-│   │   │   ├── api_discovery_agent.py         # Stage 3  — REST endpoint scanner
-│   │   │   ├── architecture_drift_agent.py    # Stage 12 — Clean architecture audit
-│   │   │   ├── bug_detection_agent.py         # Stage 7  — Ruff + static smell detection
-│   │   │   ├── change_impact_agent.py         # Stage 11 — Blast radius analyzer
-│   │   │   ├── code_analysis_agent.py         # Stage 9  — Async pipeline orchestrator
-│   │   │   ├── code_chunking_agent.py         # Stage 5  — tree-sitter semantic chunking
-│   │   │   ├── cross_repo_duplicate_agent.py  # Stage 18 — Clone detection & multi-dim compare
-│   │   │   ├── dependency_graph_agent.py      # Stage 8  — Import graph & cycle detection
-│   │   │   ├── execution_flow_agent.py        # Stage 16 — AST static call graph tracer
-│   │   │   ├── feature_extraction_agent.py    # Stage 17 — Business feature discovery
-│   │   │   ├── file_prioritization_agent.py   # Stage 4  — Scored file ranking
-│   │   │   ├── pattern_detector.py            # Stage 6  — Regex pattern detector
-│   │   │   ├── project_onboarding_agent.py    # Stage 13 — Developer reading path & quizzes
-│   │   │   ├── qa_chat_agent.py               # Stage 19 — 3-tier RAG chat
-│   │   │   ├── report_generation_agent.py     # Stage 10 — Report assembly & JSON save
-│   │   │   ├── repository_analysis_agent.py   # Stage 1  — Clone & metadata extractor
-│   │   │   ├── repository_health_agent.py     # Stage 14 — 0-100 health scoring
-│   │   │   ├── technical_debt_agent.py        # Stage 15 — Prioritized tech debt backlog
-│   │   │   └── tech_stack_agent.py            # Stage 2  — Stack detection
+│   │   ├── agents/                           # All 19 Decoupled Agents
+│   │   │   ├── api_discovery_agent.py        # Agent 3  — REST endpoint scanner
+│   │   │   ├── architecture_drift_agent.py   # Agent 12 — Clean architecture auditor
+│   │   │   ├── bug_detection_agent.py        # Agent 7  — Static smell & Ruff detector
+│   │   │   ├── change_impact_agent.py        # Agent 11 — Blast-radius calculator
+│   │   │   ├── code_analysis_agent.py        # Agent 9  — Async pipeline orchestrator
+│   │   │   ├── code_chunking_agent.py        # Agent 5  — tree-sitter AST chunker
+│   │   │   ├── cross_repo_duplicate_agent.py # Agent 18 — Clone & multi-dim compare
+│   │   │   ├── dependency_graph_agent.py    # Agent 8  — Import graph & cycle finder
+│   │   │   ├── execution_flow_agent.py       # Agent 16 — AST static call graph tracer
+│   │   │   ├── feature_extraction_agent.py   # Agent 17 — Business feature discoverer
+│   │   │   ├── file_prioritization_agent.py # Agent 4  — Scored file ranker & budget
+│   │   │   ├── pattern_detector.py           # Agent 6  — Regex pattern scanner
+│   │   │   ├── project_onboarding_agent.py   # Agent 13 — Reading path & quiz generator
+│   │   │   ├── qa_chat_agent.py              # Agent 19 — 3-Tier RAG chat engine
+│   │   │   ├── report_generation_agent.py   # Agent 10 — Report builder & JSON saver
+│   │   │   ├── repository_analysis_agent.py # Agent 1  — Git clone & metadata extractor
+│   │   │   ├── repository_health_agent.py    # Agent 14 — 0-100 health scoring model
+│   │   │   ├── technical_debt_agent.py       # Agent 15 — Tech debt backlog ranker
+│   │   │   └── tech_stack_agent.py           # Agent 2  — Deterministic stack detector
 │   │   ├── api/
-   │   │   └── routes.py                      # FastAPI routes (+ V3 endpoints)
+│   │   │   └── routes.py                     # FastAPI REST Endpoints
+│   │   ├── core/
+│   │   │   ├── config.py                     # Pydantic Settings (.env reader)
+│   │   │   └── logging_config.py             # Structured Logger
+│   │   ├── db/
+│   │   │   ├── models.py                     # SQLAlchemy ORM Models
+│   │   │   └── session.py                    # DB Session Factory
+│   │   ├── repositories/
+│   │   │   └── analysis_repository.py        # DB CRUD Layer
 │   │   ├── schemas/
-│   │   │   ├── analysis.py                    # RepositoryAnalysisReport model
-│   │   │   └── v2_schemas.py                 # V2 & V3 execution flow / feature map schemas
+│   │   │   ├── analysis.py                   # RepositoryAnalysisReport model
+│   │   │   └── v2_schemas.py                 # V2 & V3 Data Schemas
 │   │   └── services/
-│   │       ├── analysis_service.py            # Main pipeline orchestrator
-│   │       └── pipeline_status_service.py     # Real-time status tracking service
-│   ├── tests/
-│   │   ├── test_cross_repo_clone_detection.py# Clone threshold & similarity tests
-│   │   ├── test_execution_flow_agent.py       # AST tracer & DB/HTTP call tests
-│   │   ├── test_feature_extraction_agent.py   # Feature domain & env var tests
-│   │   ├── test_groq_boundary.py              # Safety boundary tests
-│   │   └── test_qa_chat_agent.py              # RAG retrieval tests
+│   │       ├── analysis_service.py           # Top-level Orchestrator
+│   │       ├── embedding_service.py         # Ollama Embedding Wrapper
+│   │       ├── groq_service.py              # Groq API Client Singleton
+│   │       ├── pipeline_status_service.py    # Real-time Stage Status Tracker
+│   │       └── vector_search_service.py     # Cosine Vector Search Engine
+│   ├── tests/                                # Pytest Test Suite
+│   │   ├── test_cross_repo_clone_detection.py# Clone threshold & relationship tests
+│   │   ├── test_execution_flow_agent.py      # Call tracer & AST extraction tests
+│   │   ├── test_feature_extraction_agent.py  # Feature domain & env matching tests
+│   │   ├── test_groq_boundary.py             # Privacy safety boundary tests
+│   │   └── test_qa_chat_agent.py             # RAG retrieval & citations tests
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
+│   │   ├── api/
+│   │   │   └── client.js                     # API Client Fetch Wrappers
 │   │   ├── components/
-│   │   │   ├── CrossRepoCompareModal.jsx     # Enhanced clone detection compare modal
-│   │   │   ├── ExecutionFlowTab.jsx          # Interactive call graph flow UI
-│   │   │   ├── FeatureMapTab.jsx             # Business feature map & implementation cards
-│   │   │   ├── ImpactAnalysisTab.jsx         # Blast radius UI
-│   │   │   ├── ArchitectureDriftTab.jsx      # Architecture drift UI
-│   │   │   ├── ProjectOnboardingTab.jsx      # Onboarding guide & quiz UI
-│   │   │   ├── RepositoryHealthTab.jsx       # Health score gauge & metrics UI
-│   │   │   └── TechnicalDebtTab.jsx          # Tech debt backlog UI
-│   │   └── App.jsx                           # Main React app & tab navigation
+│   │   │   ├── CrossRepoCompareModal.jsx     # Clone Detection & Comparison Modal
+│   │   │   ├── ExecutionFlowTab.jsx          # Execution Call Graph Visualizer
+│   │   │   ├── FeatureMapTab.jsx             # Business Feature Map Cards
+│   │   │   ├── ImpactAnalysisTab.jsx         # Blast Radius Calculator
+│   │   │   ├── ArchitectureDriftTab.jsx      # Clean Architecture Violations
+│   │   │   ├── ProjectOnboardingTab.jsx      # Developer Onboarding & Quizzes
+│   │   │   ├── RepositoryHealthTab.jsx       # Health Gauge & Category Breakdown
+│   │   │   ├── TechnicalDebtTab.jsx          # Prioritized Debt Backlog
+│   │   │   ├── QAChatPanel.jsx               # RAG Chat Panel
+│   │   │   ├── DependencyGraphPanel.jsx      # Interactive D3 Graph
+│   │   │   ├── BugReportPanel.jsx            # Bug & Smell Browser
+│   │   │   └── ArchitectureTab.jsx           # Architectural Layer Breakdown
+│   │   └── App.jsx                           # Main React App & Tab Bar
 │   └── package.json
 └── README.md
 ```
 
 ---
 
-## Prerequisites
+## Prerequisites & Ollama Setup
 
-| Requirement | Notes |
-|---|---|
-| Python 3.11+ | Backend runtime |
-| Node.js 18+ | Frontend dev server |
-| PostgreSQL | Report and vector embedding storage |
-| Git | Repository cloning |
-| [Ollama](https://ollama.com) | Local LLM summarization and embeddings |
-| [Groq API key](https://console.groq.com) | Cloud reasoning and RAG chat |
+1. **Python 3.11+** and **Node.js 18+**
+2. **PostgreSQL** running locally or remotely
+3. **Git** installed on PATH
+4. **Ollama** running locally with required models:
+
+```bash
+# Pull required local LLM models
+ollama pull llama3.1:8b          # Text model — README & module reduces
+ollama pull qwen2.5-coder:7b     # Code model — Chunk summarization
+ollama pull nomic-embed-text     # Embedding model — Vector RAG search
+```
 
 ---
 
-## Setup Guide
+## Setup & Quickstart Guide
 
-### Backend
+### Backend Setup
 
 ```bash
 cd AutoQA_Agent/backend
 
-# Create virtual environment
+# Create & activate virtual environment
 python -m venv venv
-source venv/bin/activate        # macOS / Linux
+source venv/bin/activate        # Linux / macOS
 # venv\Scripts\activate         # Windows
 
 # Install dependencies
@@ -379,17 +401,17 @@ pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
+# Set GROQ_API_KEY and DATABASE_URL in .env
 
-# Start the backend server
+# Start FastAPI server
 uvicorn app.main:app --reload
 ```
 
-Backend runs at: `http://localhost:8000`  
-Swagger API Docs: `http://localhost:8000/docs`
+Backend: `http://localhost:8000` | Swagger Docs: `http://localhost:8000/docs`
 
 ---
 
-### Frontend
+### Frontend Setup
 
 ```bash
 cd AutoQA_Agent/frontend
@@ -397,79 +419,91 @@ npm install
 npm run dev
 ```
 
-Frontend runs at: `http://localhost:5173`
+Frontend: `http://localhost:5173`
 
 ---
 
-## API Reference
+### PostgreSQL Database
 
-### V3 Endpoints (New)
-
-#### Get Execution Flow Graphs
-```http
-GET /analysis/{analysis_id}/execution-flow?entry_point=POST+/login
+```sql
+CREATE DATABASE autoqa_agent;
 ```
-Returns AST-traced call graphs, DB operations, HTTP calls, depth, and handled exceptions for entry points.
 
-#### Get Business Feature Map
-```http
-GET /analysis/{analysis_id}/feature-map
-```
-Returns detected business features with linked APIs, controllers, services, models, DB tables, and env vars.
-
-#### Enhanced Cross-Repo Comparison
-```http
-POST /compare-repositories
-Content-Type: application/json
-
-{
-  "analysis_id_a": "uuid-1",
-  "analysis_id_b": "uuid-2"
-}
-```
-Returns multi-dimensional similarity percentages (API, Code, Architecture, Module, Feature), clone detection flags (`clone_detected`), relationship classification, and banner messages.
+SQLAlchemy automatically creates all required tables (`analysis_reports`, `summary_cache`, `chunk_embeddings`) on backend startup.
 
 ---
 
-### Existing Endpoints
+## Environment Variables
 
-- `POST /analyze-repository` — Trigger full pipeline
-- `GET /analysis/{analysis_id}` — Retrieve full analysis report
-- `GET /analysis/{analysis_id}/status` — Real-time stage progress
-- `GET /analyses` — List all stored repository reports
-- `POST /analysis/{analysis_id}/chat` — RAG Q&A chat
-- `GET /analysis/{analysis_id}/pdf` — Download PDF report
+Read from `backend/.env`:
 
----
-
-## Frontend UI Panels
-
-| Tab | Description |
-|---|---|
-| **Q&A Chat** | RAG-powered chat with citations and code snippet responses |
-| **Dependency Graph** | Interactive D3 force-directed dependency graph with cycle detection |
-| **Execution Flow** *(New)* | Interactive AST call graph visualizer with node type filtering |
-| **Feature Map** *(New)* | Business feature discovery cards with full implementation mappings |
-| **Impact Analysis** | Change impact blast-radius calculator |
-| **Arch Drift** | Clean architecture audit & violation detector |
-| **Onboarding** | Step-by-step developer reading path and interactive quizzes |
-| **Health Score** | Overall 0–100 repository health gauge & category breakdown |
-| **Tech Debt** | Prioritized debt backlog with estimated fix hours |
-| **Bug Report** | Static code smells & linter warnings |
-| **Architecture** | Automatic architectural layer classification |
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+psycopg2://...` | PostgreSQL connection string |
+| `GROQ_API_KEY` | *(required)* | Groq API key for cloud reasoning |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
+| `OLLAMA_TEXT_MODEL` | `llama3.1:8b` | Model for text summarisation |
+| `OLLAMA_CODE_MODEL` | `qwen2.5-coder:7b` | Model for code chunk summarisation |
+| `MAX_FILES_TO_ANALYZE` | `50` | Maximum files analyzed per repo |
+| `MAX_CODE_TOKEN_BUDGET` | `40000` | Token character budget cap |
 
 ---
 
-## Running Tests
+## API Endpoints Reference
 
-Run the unit test suite:
+### Pipeline & Analysis
+- `POST /analyze-repository` — Submit GitHub URL & execute 19-agent pipeline
+- `GET /analysis/{analysis_id}` — Retrieve full report JSON
+- `GET /analysis/{analysis_id}/status` — Poll real-time 19-stage progress
+- `GET /analyses` — List all stored reports
+
+### V3 Specialized Endpoints
+- `GET /analysis/{analysis_id}/execution-flow` — Retrieve AST call graph flows
+- `GET /analysis/{analysis_id}/feature-map` — Retrieve business feature map
+- `POST /compare-repositories` — Multi-dimensional comparison & clone detection
+
+### Enterprise V2 Endpoints
+- `GET /analysis/{analysis_id}/impact` — Change impact blast-radius calculator
+- `GET /analysis/{analysis_id}/drift` — Clean architecture drift audit
+- `GET /analysis/{analysis_id}/onboarding` — Developer onboarding guide & quizzes
+- `GET /analysis/{analysis_id}/health` — Repository health scores
+- `GET /analysis/{analysis_id}/technical-debt` — Prioritized technical debt backlog
+
+### Interactive Tools
+- `POST /analysis/{analysis_id}/chat` — Execute 3-Tier RAG code Q&A
+- `GET /analysis/{analysis_id}/pdf` — Export formatted PDF report
+
+---
+
+## Frontend UI Panels & Navigation
+
+| Tab | Icon | Key Features |
+|---|---|---|
+| **Q&A Chat** | `MessageSquare` | 3-tier RAG chat with file:line citations and code block answers |
+| **Dependency Graph** | `Network` | Interactive D3 force graph with circular import highlights |
+| **Bug Report** | `Bug` | Static smell detector & Ruff linter issue browser |
+| **Architecture** | `GitBranch` | Layer-by-layer architectural file breakdown |
+| **Impact Analysis** | `Layers` | File modification blast-radius and risk analyzer |
+| **Arch Drift** | `ShieldAlert` | Architecture rule violation auditor |
+| **Onboarding** | `BookOpen` | Step-by-step reading path & interactive quizzes |
+| **Health Score** | `Activity` | 0–100 health gauge & category breakdown |
+| **Tech Debt** | `Wrench` | Prioritized technical debt backlog with fix hours |
+| **Execution Flow** *(V3)* | `GitGraph` | Interactive AST call graph visualizer with node type filtering |
+| **Feature Map** *(V3)* | `Map` | Business feature cards with APIs, DB tables, and env vars |
+| **Cross-Repo Compare** | `GitCompare` | Multi-dimensional comparison modal & clone alert banner |
+
+---
+
+## Running Unit & Integration Tests
+
+The test suite contains **68 unit and integration tests** covering all agent logic:
 
 ```bash
 cd AutoQA_Agent/backend
-python -m pytest tests/test_execution_flow_agent.py tests/test_feature_extraction_agent.py tests/test_cross_repo_clone_detection.py -v -p no:asyncio
-```
 
-Run all tests:
-```bash
+# Run V3 agent tests (Execution Flow, Feature Map, Clone Detection)
+python -m pytest tests/test_execution_flow_agent.py tests/test_feature_extraction_agent.py tests/test_cross_repo_clone_detection.py -v -p no:asyncio
+
+# Run full backend test suite
 python -m pytest tests/ -v -p no:asyncio
 ```
