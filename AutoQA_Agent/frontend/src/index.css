@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-app:      #080d18;
+  --bg-surface:  #0e1525;
+  --bg-elevated: #111927;
+  --bg-overlay:  #161e30;
+  --bg-hover:    rgba(255,255,255,0.03);
+
+  --border:        rgba(255,255,255,0.07);
+  --border-soft:   rgba(255,255,255,0.04);
+  --border-accent: rgba(20,210,160,0.35);
+
+  --accent-teal:   #14D2A0;
+  --accent-teal-dim: rgba(20,210,160,0.15);
+  --accent-blue:   #3B82F6;
+  --accent-purple: #8B5CF6;
+  --accent-cyan:   #06B6D4;
+
+  --success:  #10B981;
+  --warning:  #F59E0B;
+  --error:    #EF4444;
+
+  --text-primary:   #E8EDF5;
+  --text-secondary: #8B9BB4;
+  --text-muted:     #4A5568;
+  --text-accent:    #14D2A0;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.7);
+
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg:  12px;
+  --r-xl:  16px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.12); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.25); }
+
+::selection { background: rgba(20,210,160,0.25); color: #fff; }
+:focus-visible { outline: 2px solid var(--accent-teal); outline-offset: 2px; border-radius: 4px; }
+
+/* ── Animations ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+@keyframes pipelinePulse {
+  0%, 100% { opacity: 0.4; box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  50%       { opacity: 1;   box-shadow: 0 0 10px 2px rgba(99,102,241,0.2); }
+}
+
+/* ── Utilities ── */
+.animate-fade-up { animation: fadeSlideUp 0.45s ease both; }
+.animate-fade-in { animation: fadeIn 0.35s ease both; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: var(--r-lg);
+}
+
+/* ── Card ── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+
+/* ── Mono code chips ── */
+.mono-code {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  background: rgba(0,0,0,0.4);
+  color: var(--accent-teal);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.82em;
+  border: 1px solid rgba(20,210,160,0.15);
+  letter-spacing: -0.01em;
+  word-break: break-all;
+}
+
+/* ── Hero grid background ── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(20,210,160,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20,210,160,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ── Gradient text ── */
+.gradient-text-hero {
+  background: linear-gradient(135deg, #FF8A3D 0%, #FF4D8D 40%, #C45FFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 100%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* ── Method badges (kept for any legacy use) ── */
+.badge-get    { background: rgba(16,185,129,0.12); color: #34D399; border: 1px solid rgba(16,185,129,0.25); }
+.badge-post   { background: rgba(245,158,11,0.12);  color: #FCD34D; border: 1px solid rgba(245,158,11,0.25); }
+.badge-put    { background: rgba(59,130,246,0.12);  color: #60A5FA; border: 1px solid rgba(59,130,246,0.25); }
+.badge-patch  { background: rgba(139,92,246,0.12);  color: #C4B5FD; border: 1px solid rgba(139,92,246,0.25); }
+.badge-delete { background: rgba(239,68,68,0.12);   color: #F87171; border: 1px solid rgba(239,68,68,0.25); }

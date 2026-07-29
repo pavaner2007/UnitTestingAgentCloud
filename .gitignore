@@ -1,0 +1,21 @@
+# Virtual environment & OS files
+venv/
+.DS_Store
+*.pyc
+__pycache__/
+
+# Environment & Dependencies
+.env
+node_modules/
+dist/
+*.log
+
+# AutoQA Agent data folders
+AutoQA_Agent/reports/*.json
+AutoQA_Agent/repositories/*
+!AutoQA_Agent/reports/.gitkeep
+!AutoQA_Agent/repositories/.gitkeep
+AutoQA_Agent/backend/reports/*.json
+AutoQA_Agent/backend/repositories/*
+!AutoQA_Agent/backend/reports/.gitkeep
+!AutoQA_Agent/backend/repositories/.gitkeep

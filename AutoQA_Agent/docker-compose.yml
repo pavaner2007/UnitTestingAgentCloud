@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: autoqa-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: autoqa_agent
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+    container_name: autoqa-backend
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/autoqa_agent
+      WORKSPACE_DIR: /workspace/repositories
+      REPORTS_DIR: /workspace/reports
+      LOG_LEVEL: INFO
+    volumes:
+      - ./repositories:/workspace/repositories
+      - ./reports:/workspace/reports
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
