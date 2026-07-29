@@ -355,3 +355,89 @@ def get_technical_debt(analysis_id: str, db: Session = Depends(get_db)) -> dict:
         return res.model_dump()
     except AnalysisNotFoundException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+# ── V3 Agent Endpoints ───────────────────────────────────────────────────────
+
+@router.get("/analysis/{analysis_id}/execution-flow", tags=["V3 Agents"])
+def get_execution_flow(
+    analysis_id: str,
+    entry_point: str | None = None,
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Return execution flow graphs for all traced API entry points.
+
+    Optional query parameter:
+        ?entry_point=POST+/login   — filter to a specific entry point.
+
+    Returns a list of ExecutionFlowResult objects in `flows`.
+    """
+    try:
+        service = RepositoryAnalysisService(db)
+        report_data = service.get_analysis(analysis_id)
+
+        flows = report_data.get("execution_flow_data") or []
+
+        if entry_point and flows:
+            # Filter to matching entry point (case-insensitive partial match)
+            ep_lower = entry_point.lower()
+            flows = [
+                f for f in flows
+                if ep_lower in (f.get("entry_point", "") or "").lower()
+            ]
+
+        return {
+            "analysis_id": analysis_id,
+            "total_flows": len(flows),
+            "entry_point_filter": entry_point,
+            "flows": flows,
+        }
+    except AnalysisNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Execution Flow endpoint failed")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve execution flow data.",
+        ) from exc
+
+
+@router.get("/analysis/{analysis_id}/feature-map", tags=["V3 Agents"])
+def get_feature_map(
+    analysis_id: str,
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Return the detected business feature map for the analyzed repository.
+
+    Returns FeatureMapResult with a list of DetectedBusinessFeature objects.
+    """
+    try:
+        service = RepositoryAnalysisService(db)
+        report_data = service.get_analysis(analysis_id)
+
+        feature_map = report_data.get("feature_map")
+        if feature_map:
+            return feature_map
+
+        # Fallback: compute on-demand if not stored (e.g. older analysis)
+        from app.agents.feature_extraction_agent import FeatureExtractionAgent
+        agent = FeatureExtractionAgent()
+        result = agent.extract_features(
+            api_inventory=report_data.get("api_inventory", []),
+            dep_graph=report_data.get("dependency_graph"),
+            code_insights=report_data.get("code_insights"),
+            tech_stack=report_data.get("technology_stack"),
+            module_summaries=report_data.get("module_summaries", {}),
+        )
+        return result.model_dump()
+
+    except AnalysisNotFoundException as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Feature Map endpoint failed")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve feature map data.",
+        ) from exc

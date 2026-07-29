@@ -152,30 +152,134 @@ export default function CrossRepoCompareModal({ isOpen, onClose, currentAnalysis
         {/* Comparison Result Display */}
         {result && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            
+
+            {/* Clone Detection Banner */}
+            {result.clone_detected && result.clone_banner_message && (
+              <div style={{
+                background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.4)',
+                borderRadius: 12, padding: '14px 18px',
+                display: 'flex', alignItems: 'flex-start', gap: 12,
+              }}>
+                <span style={{ fontSize: '22px', flexShrink: 0 }}>⚠️</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#fca5a5', marginBottom: 4 }}>
+                    Near-Identical Repository Detected
+                  </div>
+                  <div style={{ fontSize: 12, color: '#fca5a5bb', lineHeight: 1.6 }}>
+                    {result.clone_banner_message}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* High similarity (not clone threshold but still very similar) */}
+            {!result.clone_detected && result.overall_similarity_percentage >= 75 && (
+              <div style={{
+                background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.35)',
+                borderRadius: 12, padding: '12px 18px',
+                display: 'flex', alignItems: 'center', gap: 10,
+              }}>
+                <span style={{ fontSize: '20px' }}>🔶</span>
+                <div style={{ fontSize: 12, color: '#fcd34d', lineHeight: 1.5 }}>
+                  High similarity detected — these repositories may share a common origin or template.
+                </div>
+              </div>
+            )}
+
             {/* Score Banner */}
             <div style={{
               background: 'rgba(99,102,241,0.08)',
               border: '1px solid rgba(99,102,241,0.3)',
-              borderRadius: 12,
-              padding: 20,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              borderRadius: 12, padding: 20,
             }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#a5b4fc', letterSpacing: '0.08em' }}>CROSS-REPO OVERLAP SUMMARY</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginTop: 4 }}>
-                  {result.comparison_summary}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#a5b4fc', letterSpacing: '0.08em' }}>CROSS-REPO OVERLAP SUMMARY</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginTop: 4 }}>
+                    {result.comparison_summary}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 16 }}>
+                  <div style={{ fontSize: 36, fontWeight: 900, color: '#a5b4fc', fontFamily: "'Fira Code', monospace" }}>
+                    {result.overall_similarity_percentage}%
+                  </div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>OVERALL SIMILARITY</div>
                 </div>
               </div>
 
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 32, fontWeight: 900, color: '#a5b4fc', fontFamily: "'Fira Code', monospace" }}>
-                  {result.overall_similarity_percentage}%
+              {/* Relationship type */}
+              {result.relationship_type && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Relationship:
+                  </span>
+                  <span style={{
+                    fontSize: 12, fontWeight: 700, padding: '3px 12px', borderRadius: '20px',
+                    background: result.clone_detected ? 'rgba(239,68,68,0.2)' :
+                                result.relationship_type.includes('Fork') ? 'rgba(245,158,11,0.2)' :
+                                result.relationship_type.includes('Shared') ? 'rgba(99,102,241,0.2)' :
+                                'rgba(107,114,128,0.2)',
+                    color: result.clone_detected ? '#f87171' :
+                           result.relationship_type.includes('Fork') ? '#fcd34d' :
+                           result.relationship_type.includes('Shared') ? '#a5b4fc' :
+                           'var(--text-secondary)',
+                    border: `1px solid ${result.clone_detected ? 'rgba(239,68,68,0.4)' : 'rgba(107,114,128,0.3)'}`,
+                  }}>
+                    {result.relationship_type}
+                  </span>
+                  {result.relationship_confidence > 0 && (
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      ({Math.round(result.relationship_confidence * 100)}% confidence)
+                    </span>
+                  )}
                 </div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>SIMILARITY</div>
+              )}
+
+              {/* Multi-dimensional similarity breakdown */}
+              {[
+                { label: 'API Similarity', value: result.api_similarity, color: '#3b82f6', icon: '🌐' },
+                { label: 'Code Similarity', value: result.code_similarity, color: '#8b5cf6', icon: '💻' },
+                { label: 'Architecture', value: result.architecture_similarity, color: '#10b981', icon: '🏛️' },
+                { label: 'Module Structure', value: result.module_similarity, color: '#f59e0b', icon: '📦' },
+                { label: 'Feature Overlap', value: result.feature_similarity, color: '#ef4444', icon: '🗺️' },
+              ].filter(r => r.value !== undefined && r.value !== null).map(row => (
+                <div key={row.label} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{row.icon} {row.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: row.color }}>{row.value}%</span>
+                  </div>
+                  <div style={{ height: '6px', background: 'var(--bg-app)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${Math.min(100, row.value || 0)}%`, height: '100%',
+                      background: row.color, borderRadius: '3px',
+                      transition: 'width 0.6s ease',
+                    }} />
+                  </div>
+                </div>
+              ))}
+
+              {/* Duplicate counts */}
+              <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                {[
+                  { label: 'Duplicate Files', value: result.duplicate_file_count ?? result.duplicated_files?.length ?? 0 },
+                  { label: 'Duplicate Functions', value: result.duplicate_function_count ?? result.duplicated_functions?.length ?? 0 },
+                ].map(m => (
+                  <div key={m.label} style={{
+                    flex: 1, background: 'var(--bg-app)', borderRadius: 8, padding: '8px 12px', textAlign: 'center',
+                    border: '1px solid var(--border-subtle)',
+                  }}>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: '#a5b4fc' }}>{m.value}</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{m.label}</div>
+                  </div>
+                ))}
               </div>
+
+              {/* Reasoning */}
+              {result.relationship_reasoning && (
+                <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                  💡 {result.relationship_reasoning}
+                </div>
+              )}
             </div>
 
             {/* Duplicated Files & Functions */}

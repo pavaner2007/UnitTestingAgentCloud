@@ -83,6 +83,20 @@ class CrossRepoComparisonResult(BaseModel):
     duplicated_files: list[DuplicateFilePair] = []
     duplicated_functions: list[DuplicateFunctionPair] = []
     comparison_summary: str
+    # V3 Enhanced fields
+    architecture_similarity: float = 0.0
+    api_similarity: float = 0.0
+    feature_similarity: float = 0.0
+    module_similarity: float = 0.0
+    code_similarity: float = 0.0
+    duplicate_file_count: int = 0
+    duplicate_function_count: int = 0
+    relationship_type: str = "Independent Repository"
+    relationship_confidence: float = 0.0
+    relationship_reasoning: str = ""
+    clone_detected: bool = False
+    clone_threshold: float = 98.0
+    clone_banner_message: Optional[str] = None
 
 
 # ── 4. AI Project Onboarding ──────────────────────────────────────────────────
@@ -152,3 +166,57 @@ class TechnicalDebtReport(BaseModel):
     total_debt_items: int = 0
     estimated_total_fix_hours: float = 0.0
     items: list[TechnicalDebtItem] = []
+
+
+# ── 7. Execution Flow (V3) ────────────────────────────────────────────────────
+
+class ExecutionFlowNode(BaseModel):
+    id: str                        # unique node ID e.g. "AuthService.login"
+    label: str                     # display label
+    node_type: str                 # "api_endpoint" | "function" | "class" | "db_call" | "external_http" | "module"
+    file_path: str
+    line_number: Optional[int] = None
+    confidence: float = 1.0        # 0.0 - 1.0
+    metadata: dict = {}
+
+
+class ExecutionFlowEdge(BaseModel):
+    from_id: str
+    to_id: str
+    edge_type: str                 # "calls" | "returns" | "raises" | "db_query" | "http_request"
+    label: Optional[str] = None
+
+
+class ExecutionFlowResult(BaseModel):
+    entry_point: str               # starting node label (API path or function name)
+    nodes: list[ExecutionFlowNode] = []
+    edges: list[ExecutionFlowEdge] = []
+    execution_depth: int = 0
+    db_operations_count: int = 0
+    external_http_calls_count: int = 0
+    exceptions_handled: list[str] = []
+    confidence_score: float = 0.0  # 0.0 - 1.0 for overall graph confidence
+    summary: str = ""
+
+
+# ── 8. Feature Extraction & Functional Map (V3) ───────────────────────────────
+
+class DetectedBusinessFeature(BaseModel):
+    feature_name: str
+    description: str
+    confidence_score: float        # 0.0 - 1.0
+    related_apis: list[str] = []
+    related_controllers: list[str] = []
+    related_services: list[str] = []
+    related_models: list[str] = []
+    related_db_tables: list[str] = []
+    related_config_files: list[str] = []
+    related_env_vars: list[str] = []
+    dependencies: list[str] = []
+    implementation_files: list[str] = []
+
+
+class FeatureMapResult(BaseModel):
+    total_features_detected: int = 0
+    features: list[DetectedBusinessFeature] = []
+    summary: str = ""

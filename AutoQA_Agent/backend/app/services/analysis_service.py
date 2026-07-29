@@ -245,6 +245,55 @@ class RepositoryAnalysisService:
                 }
             )
 
+            # ── V3 Agents ──────────────────────────────────────────────────────
+
+            # V3.1: Execution Flow Analysis
+            execution_flows_data = None
+            try:
+                _status("Execution Flow Analysis", "running")
+                from app.agents.execution_flow_agent import ExecutionFlowAgent
+                exec_flow_agent = ExecutionFlowAgent()
+                dep_graph_dict = code_insights.dependency_graph.model_dump() if code_insights and code_insights.dependency_graph else None
+                execution_flows = exec_flow_agent.build_all_flows(
+                    api_inventory=[ep.model_dump() for ep in api_inventory],
+                    repo_path=local_path,
+                    dep_graph=dep_graph_dict,
+                    code_insights=code_insights,
+                )
+                execution_flows_data = [f.model_dump() for f in execution_flows]
+                _status("Execution Flow Analysis", "done", f"{len(execution_flows)} execution flows mapped")
+            except Exception as exc:
+                logger.warning("Execution Flow Analysis stage failed (%s) — continuing with null", exc)
+                _status("Execution Flow Analysis", "failed", "Execution flow analysis failed")
+
+            # V3.2: Feature Extraction & Functional Map
+            feature_map_data = None
+            try:
+                _status("Feature Extraction", "running")
+                from app.agents.feature_extraction_agent import FeatureExtractionAgent
+                feature_agent = FeatureExtractionAgent()
+                feature_map = feature_agent.extract_features(
+                    api_inventory=[ep.model_dump() for ep in api_inventory],
+                    dep_graph=dep_graph_dict if 'dep_graph_dict' in dir() else None,
+                    code_insights=code_insights,
+                    tech_stack=tech_stack,
+                    module_summaries=module_summaries,
+                    repo_path=local_path,
+                )
+                feature_map_data = feature_map.model_dump()
+                _status("Feature Extraction", "done", f"{feature_map.total_features_detected} features detected")
+            except Exception as exc:
+                logger.warning("Feature Extraction stage failed (%s) — continuing with null", exc)
+                _status("Feature Extraction", "failed", "Feature extraction failed")
+
+            # Attach V3 data to report
+            report = report.model_copy(
+                update={
+                    "execution_flow_data": execution_flows_data,
+                    "feature_map": feature_map_data,
+                }
+            )
+
             # ── Step 10: Persist ─────────────────────────────────────────────────
             # If the caller supplied an analysis_id (async path), override the
             # report's auto-generated UUID so DB key == polling key == frontend's

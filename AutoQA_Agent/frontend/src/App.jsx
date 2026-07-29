@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { analyzeRepository, getAnalysis, getAnalysisStatus, downloadPdf, emailReport } from './api/client'
-import { MessageSquare, Network, Bug, GitBranch, Download, Loader2, CornerDownRight, Mail, X, CheckCircle, Database, ShieldAlert, BookOpen, Activity, Wrench, GitCompare, Layers } from 'lucide-react'
+import { MessageSquare, Network, Bug, GitBranch, Download, Loader2, CornerDownRight, Mail, X, CheckCircle, Database, ShieldAlert, BookOpen, Activity, Wrench, GitCompare, Layers, GitGraph, Map } from 'lucide-react'
 
 import QAChatPanel from './components/QAChatPanel'
 import DependencyGraphPanel from './components/DependencyGraphPanel'
@@ -14,6 +14,8 @@ import ProjectOnboardingTab from './components/ProjectOnboardingTab'
 import RepositoryHealthTab from './components/RepositoryHealthTab'
 import TechnicalDebtTab from './components/TechnicalDebtTab'
 import CrossRepoCompareModal from './components/CrossRepoCompareModal'
+import ExecutionFlowTab from './components/ExecutionFlowTab'
+import FeatureMapTab from './components/FeatureMapTab'
 
 import './index.css'
 
@@ -37,6 +39,8 @@ const TABS = [
   { id: 'onboarding',   label: 'Onboarding',       icon: BookOpen },
   { id: 'health',       label: 'Health Score',     icon: Activity },
   { id: 'debt',         label: 'Tech Debt',        icon: Wrench },
+  { id: 'execflow',     label: 'Execution Flow',   icon: GitGraph },
+  { id: 'featuremap',   label: 'Feature Map',      icon: Map },
 ]
 
 const POLL_INTERVAL_MS = 1000
@@ -613,6 +617,18 @@ export default function App() {
                   <TechnicalDebtTab
                     analysisId={report.analysis_id}
                     reportData={report}
+                  />
+                )}
+                {activeTab === 'execflow' && (
+                  <ExecutionFlowTab
+                    analysisId={report.analysis_id}
+                    report={report}
+                  />
+                )}
+                {activeTab === 'featuremap' && (
+                  <FeatureMapTab
+                    analysisId={report.analysis_id}
+                    report={report}
                   />
                 )}
               </div>

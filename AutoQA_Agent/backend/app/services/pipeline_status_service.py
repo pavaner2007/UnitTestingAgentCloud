@@ -50,6 +50,9 @@ PIPELINE_STAGES: list[str] = [
     "Developer Onboarding Guide",
     "Repository Health Scoring",
     "Tech Debt Prioritization",
+    # V3 Agents
+    "Execution Flow Analysis",
+    "Feature Extraction",
 ]
 
 _VALID_STATUSES = frozenset({"queued", "running", "done", "failed", "skipped"})

@@ -135,6 +135,10 @@ class RepositoryAnalysisReport(BaseModel):
     repository_health: Optional[Any] = None
     technical_debt: Optional[Any] = None
 
+    # V3.0 AI Agents (optional — backward compatible)
+    execution_flow_data: Optional[Any] = None   # list[ExecutionFlowResult] serialized
+    feature_map: Optional[Any] = None           # FeatureMapResult serialized
+
 
 class AnalyzeRepositoryResponse(BaseModel):
     analysis_id: str
