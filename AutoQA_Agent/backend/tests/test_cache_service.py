@@ -63,7 +63,7 @@ def test_different_model_returns_miss():
     old summaries.
     """
     from app.db.models import SummaryCacheModel
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     db = MagicMock()
     svc = CacheService(db)
@@ -75,7 +75,7 @@ def test_different_model_returns_miss():
         summary_type="chunk",
         model_used="qwen2.5:7b",    # OLD model
         summary_text="Adds two numbers.",
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )
 
     def _query_side_effect(*args, **kwargs):

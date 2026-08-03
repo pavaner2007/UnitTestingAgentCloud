@@ -246,6 +246,7 @@ class RepositoryAnalysisService:
             )
 
             # ── V3 Agents ──────────────────────────────────────────────────────
+            dep_graph_dict = code_insights.dependency_graph.model_dump() if code_insights and code_insights.dependency_graph else None
 
             # V3.1: Execution Flow Analysis
             execution_flows_data = None
@@ -253,7 +254,6 @@ class RepositoryAnalysisService:
                 _status("Execution Flow Analysis", "running")
                 from app.agents.execution_flow_agent import ExecutionFlowAgent
                 exec_flow_agent = ExecutionFlowAgent()
-                dep_graph_dict = code_insights.dependency_graph.model_dump() if code_insights and code_insights.dependency_graph else None
                 execution_flows = exec_flow_agent.build_all_flows(
                     api_inventory=[ep.model_dump() for ep in api_inventory],
                     repo_path=local_path,
@@ -274,7 +274,7 @@ class RepositoryAnalysisService:
                 feature_agent = FeatureExtractionAgent()
                 feature_map = feature_agent.extract_features(
                     api_inventory=[ep.model_dump() for ep in api_inventory],
-                    dep_graph=dep_graph_dict if 'dep_graph_dict' in dir() else None,
+                    dep_graph=dep_graph_dict,
                     code_insights=code_insights,
                     tech_stack=tech_stack,
                     module_summaries=module_summaries,

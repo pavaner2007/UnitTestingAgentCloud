@@ -194,7 +194,7 @@ def test_concurrent_set_status_does_not_corrupt_state(svc):
 # ── stage count ───────────────────────────────────────────────────────────────
 
 def test_pipeline_stages_count():
-    assert len(PIPELINE_STAGES) == 17
+    assert len(PIPELINE_STAGES) == 19
 
 
 def test_pipeline_stages_has_expected_stages():
@@ -205,6 +205,7 @@ def test_pipeline_stages_has_expected_stages():
         "Chunk Summarization", "Module & File Reduce", "Groq AI Reasoning",
         "Change Impact Analysis", "Architecture Drift Audit",
         "Developer Onboarding Guide", "Repository Health Scoring",
-        "Tech Debt Prioritization",
+        "Tech Debt Prioritization", "Execution Flow Analysis",
+        "Feature Extraction",
     }
     assert set(PIPELINE_STAGES) == expected

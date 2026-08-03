@@ -183,13 +183,20 @@ class CloudLLMService:
         system_prompt: str | None,
         task_type: str | None = None,
     ) -> str | None:
-        # 1. Check for dedicated task API key
+        # 1. Candidate models: requested model first, then llama-3.1-8b-instant as rate-limit failover
+        requested_model = model or "llama-3.1-8b-instant"
+        candidate_models = [requested_model]
+        if task_type == "chat" and "llama-3.1-8b-instant" not in candidate_models:
+            candidate_models.insert(0, "llama-3.1-8b-instant")
+        elif "llama-3.1-8b-instant" not in candidate_models:
+            candidate_models.append("llama-3.1-8b-instant")
+
+        # 2. Candidate keys: dedicated task key first, then general pool
         dedicated_key = self._get_dedicated_groq_key(task_type)
         candidate_keys = []
         if dedicated_key:
             candidate_keys.append(dedicated_key)
 
-        # 2. Append general round-robin keys as fallback pool
         for k in settings.groq_keys_list:
             if k not in candidate_keys:
                 candidate_keys.append(k)
@@ -198,40 +205,42 @@ class CloudLLMService:
             logger.warning("No Groq API keys available for task_type=%s.", task_type)
             return None
 
-        # Try candidate keys
-        for key in candidate_keys:
-            try:
-                headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
-                messages = []
-                if system_prompt:
-                    messages.append({"role": "system", "content": system_prompt})
-                messages.append({"role": "user", "content": prompt})
+        # 3. Try model candidates x key candidates
+        for m in candidate_models:
+            for key in candidate_keys:
+                try:
+                    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+                    messages = []
+                    if system_prompt:
+                        messages.append({"role": "system", "content": system_prompt})
+                    messages.append({"role": "user", "content": prompt})
 
-                payload = {
-                    "model": model or "llama-3.1-8b-instant",
-                    "messages": messages,
-                    "max_tokens": max_tokens,
-                }
-                resp = httpx.post(
-                    "https://api.groq.com/openai/v1/chat/completions",
-                    json=payload,
-                    headers=headers,
-                    timeout=self.timeout,
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    return data["choices"][0]["message"]["content"].strip()
-                elif resp.status_code in (429, 401, 403):
-                    logger.warning(
-                        "Groq API key error (%d) for task_type=%s — attempting next available API key.",
-                        resp.status_code,
-                        task_type,
+                    payload = {
+                        "model": m,
+                        "messages": messages,
+                        "max_tokens": max_tokens,
+                    }
+                    resp = httpx.post(
+                        "https://api.groq.com/openai/v1/chat/completions",
+                        json=payload,
+                        headers=headers,
+                        timeout=self.timeout,
                     )
-                    continue
-                else:
-                    logger.warning("Groq API HTTP error %d: %s", resp.status_code, resp.text)
-            except Exception as exc:
-                logger.warning("Groq completion exception for task_type=%s: %s", task_type, exc)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        return data["choices"][0]["message"]["content"].strip()
+                    elif resp.status_code in (429, 401, 403, 400, 404):
+                        logger.warning(
+                            "Groq API error (%d) for model=%s, task_type=%s — attempting next candidate key/model.",
+                            resp.status_code,
+                            m,
+                            task_type,
+                        )
+                        continue
+                    else:
+                        logger.warning("Groq API HTTP error %d for model=%s: %s", resp.status_code, m, resp.text)
+                except Exception as exc:
+                    logger.warning("Groq completion exception for model=%s, task_type=%s: %s", m, task_type, exc)
 
         return None
 
