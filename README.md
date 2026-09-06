@@ -67,8 +67,8 @@ AutoQA Agent accepts any public GitHub repository URL, clones it locally, execut
    │          │          │          │          │          │          │
    ▼          ▼          ▼          ▼          ▼          ▼          ▼
 [Stage 1]  [Stage 2]  [Stage 3]  [Stage 9]  [Stage 10] [Ollama]  [Groq API]
- Repo       Tech       API        Code       Report      llama3   llama-3.1
- Clone      Stack      Disc.      Analysis   Gen.       qwen2.5  8b-instant
+ Repo       Tech       API        Code       Report      llama3   gpt-oss
+ Clone      Stack      Disc.      Analysis   Gen.       qwen2.5  120b/20b
  Agent      Agent      Agent      Agent      Agent
                                   │
                ┌──────────────────┼──────────────────────┐
@@ -175,7 +175,7 @@ The system is composed of **19 decoupled agent modules**, each operating with st
 - **Class:** `ReportGenerationAgent`
 - **File:** `backend/app/agents/report_generation_agent.py`
 - **Mode:** Schema Aggregator & Groq Interface
-- **Role:** Constructs a strict, privacy-safe facts payload (<32 KB, zero raw code), submits it to Groq (`llama-3.1-8b-instant`), receives architectural reasoning (overview, complexity, workflows, key tech, confidence score), and persists the report to PostgreSQL and disk.
+- **Role:** Constructs a strict, privacy-safe facts payload (<32 KB, zero raw code), submits it to Groq (`openai/gpt-oss-20b`), receives architectural reasoning (overview, complexity, workflows, key tech, confidence score), and persists the report to PostgreSQL and disk.
 
 ---
 
@@ -257,7 +257,9 @@ AutoQA Agent employs a **hybrid local + cloud LLM model delegation**:
 |---|---|---|---|
 | **Code Summary Model** | `qwen2.5-coder:7b` | Ollama (Local) | AST chunk-level code semantics and function summarisation |
 | **Text & Reduce Model** | `llama3.1:8b` | Ollama (Local) | README summarisation, file/module reduce, feature enrichment |
-| **Cloud Reasoning Engine** | `llama-3.1-8b-instant` | Groq API (Cloud) | High-level architecture reasoning, feature overview, RAG chat |
+| **Cloud Text Engine** | `openai/gpt-oss-120b` | Groq API (Cloud) | High-level architecture reasoning & text analysis |
+| **Cloud Code Engine** | `qwen/qwen3.6-27b` | Groq API (Cloud) | Code-specialized cloud inference |
+| **Cloud Report/Chat Engine** | `openai/gpt-oss-20b` | Groq API (Cloud) | Report generation, RAG chat & rate-limit fallback |
 | **Embedding Engine** | `nomic-embed-text` | Ollama (Local) | Vector embeddings for code chunk semantic search |
 
 > **Graceful Degradation:** If Ollama is offline, local code insights degrade gracefully while Groq generates high-level analysis from deterministic facts. If Groq is offline, deterministic fallback analysis reports are returned.
@@ -283,7 +285,7 @@ AutoQA Agent employs a **hybrid local + cloud LLM model delegation**:
 | **Frontend** | React 18 · Vite · Vanilla CSS · Lucide Icons |
 | **Database** | PostgreSQL · SQLAlchemy 2.0 ORM |
 | **Local LLM** | Ollama (`qwen2.5-coder:7b`, `llama3.1:8b`, `nomic-embed-text`) |
-| **Cloud LLM** | Groq API (`llama-3.1-8b-instant`) |
+| **Cloud LLM** | Groq API (`openai/gpt-oss-120b`, `qwen/qwen3.6-27b`, `openai/gpt-oss-20b`) |
 | **AST Parsing** | `tree-sitter` · Python `ast` module |
 | **Static Analysis** | Ruff (Python linter) |
 | **Visualisation** | D3-force (Dependency Graph) · Custom SVG/CSS (Execution Flow) |
