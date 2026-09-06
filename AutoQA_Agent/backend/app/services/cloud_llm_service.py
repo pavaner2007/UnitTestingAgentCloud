@@ -183,13 +183,13 @@ class CloudLLMService:
         system_prompt: str | None,
         task_type: str | None = None,
     ) -> str | None:
-        # 1. Candidate models: requested model first, then llama-3.1-8b-instant as rate-limit failover
-        requested_model = model or "llama-3.1-8b-instant"
+        # 1. Candidate models: requested model first, then openai/gpt-oss-20b as rate-limit failover
+        requested_model = model or "openai/gpt-oss-20b"
         candidate_models = [requested_model]
-        if task_type == "chat" and "llama-3.1-8b-instant" not in candidate_models:
-            candidate_models.insert(0, "llama-3.1-8b-instant")
-        elif "llama-3.1-8b-instant" not in candidate_models:
-            candidate_models.append("llama-3.1-8b-instant")
+        if task_type == "chat" and "openai/gpt-oss-20b" not in candidate_models:
+            candidate_models.insert(0, "openai/gpt-oss-20b")
+        elif "openai/gpt-oss-20b" not in candidate_models:
+            candidate_models.append("openai/gpt-oss-20b")
 
         # 2. Candidate keys: dedicated task key first, then general pool
         dedicated_key = self._get_dedicated_groq_key(task_type)

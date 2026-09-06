@@ -12,4 +12,4 @@ class GroqClient:
 
     def complete(self, prompt: str, max_tokens: int = 2048) -> str | None:
         """Send a prompt to Groq (with dedicated report key or rotation) and return text response."""
-        return self._cloud_service.complete(prompt, model="llama-3.1-8b-instant", max_tokens=max_tokens, task_type="report")
+        return self._cloud_service.complete(prompt, model="openai/gpt-oss-20b", max_tokens=max_tokens, task_type="report")
